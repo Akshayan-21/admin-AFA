@@ -361,20 +361,40 @@ export default function DashboardPage() {
               ) : (
                 <>
                   {messages.map((m) => (
-                    <div key={m.id} className={`flex gap-[14px] mb-[24px] animate-in slide-in-from-bottom-2 fade-in duration-300 ${m.role === "assistant" ? "ai" : ""}`}>
-                      <div className={`w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-[2px] text-white ${m.role === "user" ? "bg-[#1a1a2e]" : "bg-gradient-to-br from-[#e85d45] to-[#c73a28] shadow-[0_3px_10px_rgba(232,93,69,0.2)]"}`}>{m.role === "user" ? "U" : "M"}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-bold text-[#b5b5c4] uppercase tracking-[0.08em] mb-[6px]">{m.role === "user" ? "You" : "Miraee AI"}</div>
-                        <div className={`text-[14px] leading-[1.75] text-[#3d3d4e] whitespace-pre-wrap break-words ${m.role === "assistant" ? "bg-white border border-black/5 rounded-[16px] p-[18px_20px] shadow-[0_2px_16px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.02)]" : "bg-white/50 border border-black/5 rounded-[16px] p-[18px_20px]"}`}>{m.content}</div>
+                    <div key={m.id} className={`flex mb-[20px] animate-in slide-in-from-bottom-2 fade-in duration-300 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                      {m.role === "assistant" && (
+                        <div className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-[4px] mr-[12px] text-white bg-gradient-to-br from-[#e85d45] to-[#c73a28] shadow-[0_3px_10px_rgba(232,93,69,0.2)] relative">
+                          M
+                          <div className="absolute -bottom-1 -right-1 w-[10px] h-[10px] bg-[#10b981] rounded-full border-[2px] border-[#f4f4f8]"></div>
+                        </div>
+                      )}
+                      <div className={`max-w-[80%] max-sm:max-w-[90%] flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
+                        <div className="text-[11px] font-semibold text-[#8a8a9a] mb-[6px] px-[6px] tracking-wide">{m.role === "user" ? "You" : "Miraee AI"}</div>
+                        <div className={`text-[14px] leading-[1.7] whitespace-pre-wrap break-words p-[16px_20px] ${m.role === "user" ? "bg-[#1a1a2e] text-white rounded-[24px_24px_6px_24px] shadow-[0_4px_16px_rgba(26,26,46,0.15)]" : "bg-white text-[#2d2d3a] border border-[#ececf0] rounded-[24px_24px_24px_6px] shadow-[0_4px_20px_rgba(0,0,0,0.03)]"}`}>
+                          {m.content}
+                        </div>
                       </div>
+                      {m.role === "user" && (
+                        <div className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-[4px] ml-[12px] text-[#1a1a2e] bg-white border border-[#ececf0] shadow-[0_2px_6px_rgba(0,0,0,0.04)]">
+                          U
+                        </div>
+                      )}
                     </div>
                   ))}
                   {isTyping && (
-                    <div className="flex gap-[14px] mb-[24px] animate-in slide-in-from-bottom-2 fade-in duration-300 ai">
-                      <div className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-[2px] text-white bg-gradient-to-br from-[#e85d45] to-[#c73a28] shadow-[0_3px_10px_rgba(232,93,69,0.2)]">M</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-bold text-[#b5b5c4] uppercase tracking-[0.08em] mb-[6px]">Miraee AI</div>
-                        <div className="text-[14px] leading-[1.75] text-[#3d3d4e] whitespace-pre-wrap break-words"><div className="flex gap-[5px] p-[16px_18px]"><div className="w-[7px] h-[7px] rounded-full bg-[#e85d45] opacity-40 animate-bounce"/><div className="w-[7px] h-[7px] rounded-full bg-[#e85d45] opacity-40 animate-bounce"/><div className="w-[7px] h-[7px] rounded-full bg-[#e85d45] opacity-40 animate-bounce"/></div></div>
+                    <div className="flex justify-start mb-[20px] animate-in slide-in-from-bottom-2 fade-in duration-300">
+                      <div className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-[4px] mr-[12px] text-white bg-gradient-to-br from-[#e85d45] to-[#c73a28] shadow-[0_3px_10px_rgba(232,93,69,0.2)]">
+                        M
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <div className="text-[11px] font-semibold text-[#8a8a9a] mb-[6px] px-[6px] tracking-wide">Miraee AI</div>
+                        <div className="bg-white border border-[#ececf0] rounded-[24px_24px_24px_6px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-[18px_20px]">
+                          <div className="flex gap-[6px]">
+                            <div className="w-[8px] h-[8px] rounded-full bg-[#b5b5c4] animate-[bounce_1s_infinite_-0.3s]"></div>
+                            <div className="w-[8px] h-[8px] rounded-full bg-[#b5b5c4] animate-[bounce_1s_infinite_-0.15s]"></div>
+                            <div className="w-[8px] h-[8px] rounded-full bg-[#b5b5c4] animate-[bounce_1s_infinite]"></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}

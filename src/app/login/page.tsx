@@ -26,7 +26,7 @@ export default function LoginPage() {
     try {
       loginSchema.parse({ email, password });
       setErrors({});
-      router.push("/dashboard");
+      router.push("/chat");
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: { email?: string; password?: string } = {};
