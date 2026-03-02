@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface Message {
   id: string;
@@ -92,11 +93,14 @@ export default function DashboardPage() {
         { id: "h3", action: "Coordinated with SkyBot for flight-aligned pickups", time: "5 hrs ago", type: "chat" },
       ],
       conversations: [
-        { id: "c1", withAgent: "Garp", withColor: "#64748b", messages: [
-          { from: "Nami", text: "Garp, transit schedule for Delhi is locked in.", time: "1 hr ago" },
-          { from: "Garp", text: "Copy that, Nami. I'll notify the customer.", time: "55 min ago" },
-        ]},
+        {
+          id: "c1", withAgent: "Garp", withColor: "#64748b", messages: [
+            { from: "Nami", text: "Garp, transit schedule for Delhi is locked in.", time: "1 hr ago" },
+            { from: "Garp", text: "Copy that, Nami. I'll notify the customer.", time: "55 min ago" },
+          ]
+        },
       ],
+      liveConversation: null
     },
     a4: {
       summary: "Building a comprehensive 7-day Rajasthan family tour itinerary, including heritage stays, local transport, and curated sight-seeing.",
@@ -277,10 +281,13 @@ export default function DashboardPage() {
             </div>
             <button className="w-[30px] h-[30px] flex items-center justify-center bg-[#f4f4f8] hover:bg-[#e8e8ee] border-none rounded-[8px] text-[#b0b0be] hover:text-[#888] cursor-pointer text-[13px] transition-all duration-200" onClick={() => setSidebarOpen(false)}>✕</button>
           </div>
-          <button className="m-[14px_14px_6px] p-[12px_16px] flex items-center gap-[9px] bg-gradient-to-br from-[#e85d45] to-[#c73a28] border-none text-white rounded-[12px] cursor-pointer text-[13px] font-semibold tracking-[0.01em] transition-all duration-300 shadow-[0_4px_16px_rgba(232,93,69,0.25),0_1px_3px_rgba(0,0,0,0.1)] hover:-translate-y-[2px] hover:shadow-[0_8px_32px_rgba(232,93,69,0.3),0_2px_6px_rgba(0,0,0,0.1)] active:translate-y-0 active:shadow-[0_2px_8px_rgba(232,93,69,0.2)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/15 before:to-transparent before:pointer-events-none" onClick={handleNewChat}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <Button 
+            className="m-[14px_14px_6px] h-[44px] rounded-full bg-gradient-to-br from-[#e85d45] to-[#c73a28] hover:from-[#f06e58] hover:to-[#d64a36] text-white border-none shadow-[0_4px_16px_rgba(232,93,69,0.25)] transition-all duration-300 hover:shadow-[0_8px_32px_rgba(232,93,69,0.3)] active:scale-[0.98] font-semibold text-[14px]"
+            onClick={handleNewChat}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="mr-2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             New Chat
-          </button>
+          </Button>
           <div className="flex-1 overflow-y-auto p-[6px_10px] [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-[#dddde5] [&::-webkit-scrollbar-thumb]:rounded-[3px]">
             <div className="p-[14px_8px_6px] text-[10px] font-bold text-[#b5b5c4] uppercase tracking-[0.1em]">Recent Chats</div>
             {sessions.map((s) => (
