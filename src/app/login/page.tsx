@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 import { loginSchema } from "@/lib/validations";
+import { useAuth } from "@/lib/AuthContext";
 import AuthLayout, {
   inputStyle,
   btnPrimary,
@@ -16,17 +17,19 @@ import AuthLayout, {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberLogin, setRememberLogin] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; api?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Client-side validation first
     try {
       loginSchema.parse({ email, password });
       setErrors({});
-      router.push("/chat");
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: { email?: string; password?: string } = {};
@@ -35,7 +38,20 @@ export default function LoginPage() {
           if (err.path[0] === "password") newErrors.password = err.message;
         });
         setErrors(newErrors);
+        return;
       }
+    }
+
+    // Real auth API call
+    setIsSubmitting(true);
+    try {
+      await login(email, password);
+      router.push("/chat");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Login failed. Please try again.";
+      setErrors({ api: message });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -61,6 +77,13 @@ export default function LoginPage() {
         Welcome back! Enter your details to log in to your account
       </p>
 
+      {/* API Error Banner */}
+      {errors.api && (
+        <div className="w-full max-w-[380px] max-md:max-w-full mb-4 p-3 bg-[#fef2f2] border border-[#fecaca] rounded-[10px] text-[#dc2626] text-[13px] font-medium text-center">
+          {errors.api}
+        </div>
+      )}
+
       {/* Form */}
       <form onSubmit={handleLogin} className="flex flex-col gap-2 w-full max-w-[380px] max-md:max-w-full">
         {/* Email */}
@@ -76,6 +99,7 @@ export default function LoginPage() {
           style={{ ...inputStyle, marginBottom: errors.email ? "4px" : "12px", borderColor: errors.email ? "#ef4444" : "#e5e5ed" }}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          disabled={isSubmitting}
         />
         {errors.email && <span className="text-[#ef4444] text-[11px] mb-2 block">{errors.email}</span>}
 
@@ -92,6 +116,7 @@ export default function LoginPage() {
           style={{ ...inputStyle, borderColor: errors.password ? "#ef4444" : "#e5e5ed", marginBottom: errors.password ? "4px" : "0" }}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          disabled={isSubmitting}
         />
         {errors.password && <span className="text-[#ef4444] text-[11px] block mt-1">{errors.password}</span>}
 
@@ -119,11 +144,19 @@ export default function LoginPage() {
         <button
           type="submit"
           id="login-button"
-          style={btnPrimary}
-          onMouseEnter={btnHoverEnter}
-          onMouseLeave={btnHoverLeave}
+          style={{ ...btnPrimary, opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? "not-allowed" : "pointer" }}
+          onMouseEnter={!isSubmitting ? btnHoverEnter : undefined}
+          onMouseLeave={!isSubmitting ? btnHoverLeave : undefined}
+          disabled={isSubmitting}
         >
-          Login
+          {isSubmitting ? (
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+              <svg style={{ animation: "spin 1s linear infinite" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Logging in...
+            </span>
+          ) : "Login"}
         </button>
 
         {/* Divider */}

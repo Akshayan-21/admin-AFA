@@ -24,3 +24,21 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Suppress CopilotKit dev/announcement overlays ── */
+[class*="copilotKitDevConsole"],
+[class*="copilotkit-dev"],
+[id*="copilotkit-dev"],
+[class*="CopilotKitBanner"],
+[class*="copilotkit-banner"],
+[data-copilotkit],
+button[title*="CopilotKit"],
+div[class*="copilotKitButton"],
+div[class*="copilotkit-button"],
+#copilotkit-dev-console,
+.copilotkit-dev-console {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

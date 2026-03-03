@@ -5,27 +5,60 @@ import {
 } from "@copilotkit/runtime";
 import { HttpAgent } from "@ag-ui/client";
 import { NextRequest } from "next/server";
- 
-// 1. You can use any service adapter here for multi-agent support. We use
-//    the empty adapter since we're only using one agent.
+
+const GATEWAY_URL =
+  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8003";
+
 const serviceAdapter = new ExperimentalEmptyAdapter();
- 
-// 2. Create the CopilotRuntime instance and utilize the AG-UI client
-//    to setup the connection with the ADK agent.
-const runtime = new CopilotRuntime({
-  agents: {
-    // Our FastAPI endpoint URL
-    "my_agent": new HttpAgent({url: "http://localhost:8000/"}),
-  }   
-});
- 
-// 3. Build a Next.js API route that handles the CopilotKit runtime requests.
+
+/**
+ * Dynamic runtime: each request gets its own HttpAgent configured with
+ * the authenticated user's user_id and Bearer token, forwarded to the
+ * AFA Gateway /agui endpoint.
+ */
+function buildRuntime(userId: string, token: string) {
+  return new CopilotRuntime({
+    agents: {
+      afa_agent: new HttpAgent({
+        url: `${GATEWAY_URL}/agui?user_id=${encodeURIComponent(userId)}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    },
+  });
+}
+
 export const POST = async (req: NextRequest) => {
+  // Extract auth metadata forwarded by the client (CopilotKit passes
+  // arbitrary properties through the request body)
+  let userId = "";
+  let token = "";
+
+  try {
+    // Clone to read body without consuming it for the handler
+    const cloned = req.clone();
+    const body = await cloned.json();
+    userId = body?.properties?.userId ?? body?.userId ?? "";
+    token = body?.properties?.token ?? body?.token ?? "";
+  } catch {
+    // Ignore parse errors — handler will reject with 401 if auth missing
+  }
+
+  // Fallback: read from headers if client sends them directly
+  if (!userId) userId = req.headers.get("x-user-id") ?? "";
+  if (!token) {
+    const authHeader = req.headers.get("authorization") ?? "";
+    token = authHeader.replace(/^Bearer\s+/i, "");
+  }
+
+  const runtime = buildRuntime(userId, token);
+
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
-    runtime, 
+    runtime,
     serviceAdapter,
     endpoint: "/api/copilotkit",
   });
- 
+
   return handleRequest(req);
 };
